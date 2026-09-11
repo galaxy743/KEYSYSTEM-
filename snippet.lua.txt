@@ -1,0 +1,98 @@
+-- ═══════════════════════════════════════════════════════════
+-- BLOX FRUITS KEY SYSTEM
+-- Key Link: https://onax.onrender.com/
+-- ═══════════════════════════════════════════════════════════
+
+local KeySystem = {}
+
+-- ══ CONFIG ══
+local KEY_URL = "https://onax.onrender.com/"
+local VALID_KEYS_ENDPOINT = KEY_URL .. "api/validate" -- sesuaiin endpoint lu
+local HWID = game:GetService("RbxAnalyticsService"):GetClientId()
+local HttpService = game:GetService("HttpService")
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local LocalPlayer = Players.LocalPlayer
+
+-- ══ SAVED KEY CHECK ══
+local SavedKey = nil
+local KEY_FILE = "BloxFruit_Key.txt"
+
+local function SaveKey(key)
+    if writefile then
+        writefile(KEY_FILE, key)
+    end
+end
+
+local function LoadKey()
+    if isfile and isfile(KEY_FILE) then
+        if readfile then
+            return readfile(KEY_FILE)
+        end
+    end
+    return nil
+end
+
+-- ══ KEY VALIDATION ══
+local function ValidateKey(key)
+    local success, result = pcall(function()
+        local response = request({
+            Url = VALID_KEYS_ENDPOINT,
+            Method = "POST",
+            Headers = {
+                ["Content-Type"] = "application/json"
+            },
+            Body = HttpService:JSONEncode({
+                key = key,
+                hwid = HWID
+            })
+        })
+        return HttpService:JSONDecode(response.Body)
+    end)
+
+    if success and result then
+        return result.valid == true, result.message or ""
+    end
+
+    -- Fallback: hash-based offline check kalau server down
+    return false, "Server tidak dapat dihubungi."
+end
+
+-- ══ UI BUILDER ══
+local function CreateKeyUI()
+    -- Destroy existing
+    if game.CoreGui:FindFirstChild("KeySystemUI") then
+        game.CoreGui:FindFirstChild("KeySystemUI"):Destroy()
+    end
+
+    local ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.Name = "KeySystemUI"
+    ScreenGui.ResetOnSpawn = false
+    ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    ScreenGui.Parent = game.CoreGui
+
+    -- ── Main Frame ──
+    local MainFrame = Instance.new("Frame")
+    MainFrame.Name = "MainFrame"
+    MainFrame.Size = UDim2.new(0, 420, 0, 280)
+    MainFrame.Position = UDim2.new(0.5, -210, 0.5, -140)
+    MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
+    MainFrame.BorderSizePixel = 0
+    MainFrame.ClipsDescendants = true
+    MainFrame.Parent = ScreenGui
+
+    local MainCorner = Instance.new("UICorner")
+    MainCorner.CornerRadius = UDim.new(0, 12)
+    MainCorner.Parent = MainFrame
+
+    local MainStroke = Instance.new("UIStroke")
+    MainStroke.Color = Color3.fromRGB(100, 60, 255)
+    MainStroke.Thickness = 1.5
+    MainStroke.Transparency = 0.3
+    MainStroke.Parent = MainFrame
+
+    -- ── Glow Effect Top Bar ──
+    local TopGlow = Instance.new("Frame")
+    TopGlow.Size = UDim2.new(1, 0, 0, 3)
+    TopGlow.Position = UDim2.new(0, 0, 0

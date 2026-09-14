@@ -1,0 +1,2 @@
+repeat wait() until game:IsLoaded()
+return loadstring(game:HttpGet("https://raw.githubusercontent.com/galaxy743/KEYSYSTEM-/refs/heads/main/GalaxyHubLoc.lua"))()
